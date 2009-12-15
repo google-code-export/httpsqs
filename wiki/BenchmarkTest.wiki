@@ -1,7 +1,7 @@
 #labels Featured,Phase-Support
 ==Apache AB Benchmark Test:==
 
-====PUT 512 bytes text message into a queue: 10697 requests/sec====
+===PUT 512bytes text message into a queue: 10697 requests/sec===
 
 {{{
 [root@xoyo test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaa
@@ -74,7 +74,7 @@ Percentage of the requests served within a certain time (ms)
 
 ----
 
-====GET 512 bytes text message from a queue: 10058 requests/sec====
+===GET 512 bytes text message from a queue: 10058 requests/sec===
 
 {{{
 [root@xoyo test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
