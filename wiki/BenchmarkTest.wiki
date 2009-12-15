@@ -1,8 +1,10 @@
 #labels Featured,Phase-Support
-Apache AB Benchmark Test: 
+==Apache AB Benchmark Test:==
+
+====PUT 512 bytes text message into a queue: 10697 requests/sec====
 
 {{{
-[root@xoyo42 test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaa
+[root@xoyo test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaa
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
@@ -68,4 +70,65 @@ Percentage of the requests served within a certain time (ms)
   98%      1
   99%      2
  100%     11 (longest request)
+}}}
+
+----
+
+====GET 512 bytes text message from a queue: 10058 requests/sec====
+
+{{{
+[root@xoyo test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
+This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright 2006 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 10000 requests
+Completed 20000 requests
+Completed 30000 requests
+Completed 40000 requests
+Completed 50000 requests
+Completed 60000 requests
+Completed 70000 requests
+Completed 80000 requests
+Completed 90000 requests
+Finished 100000 requests
+
+
+Server Software:        
+Server Hostname:        127.0.0.1
+Server Port:            1218
+
+Document Path:          /?name=xoyo&opt=get
+Document Length:        512 bytes
+
+Concurrency Level:      10
+Time taken for tests:   9.941709 seconds
+Complete requests:      100000
+Failed requests:        0
+Write errors:           0
+Total transferred:      57400000 bytes
+HTML transferred:       51200000 bytes
+Requests per second:    10058.63 [#/sec] (mean)
+Time per request:       0.994 [ms] (mean)
+Time per request:       0.099 [ms] (mean, across all concurrent requests)
+Transfer rate:          5638.27 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.1      0       9
+Processing:     0    0   0.5      0      10
+Waiting:        0    0   0.3      0      10
+Total:          0    0   0.5      0      10
+
+Percentage of the requests served within a certain time (ms)
+  50%      0
+  66%      0
+  75%      0
+  80%      0
+  90%      1
+  95%      1
+  98%      2
+  99%      2
+ 100%     10 (longest request)
 }}}
