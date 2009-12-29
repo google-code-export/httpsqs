@@ -3,137 +3,7 @@
 
 ----
 
-===PUT 512 bytes text message into a queue: 10697 requests/sec===
-
-{{{
-[root@xoyo test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
-Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright 2006 The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking 127.0.0.1 (be patient)
-Completed 10000 requests
-Completed 20000 requests
-Completed 30000 requests
-Completed 40000 requests
-Completed 50000 requests
-Completed 60000 requests
-Completed 70000 requests
-Completed 80000 requests
-Completed 90000 requests
-Finished 100000 requests
-
-
-Server Software:        
-Server Hostname:        127.0.0.1
-Server Port:            1218
-
-Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Document Length:        14 bytes
-
-Concurrency Level:      10
-Time taken for tests:   9.348404 seconds
-Complete requests:      100000
-Failed requests:        0
-Write errors:           0
-Total transferred:      7600000 bytes
-HTML transferred:       1400000 bytes
-Requests per second:    10697.01 [#/sec] (mean)
-Time per request:       0.935 [ms] (mean)
-Time per request:       0.093 [ms] (mean, across all concurrent requests)
-Transfer rate:          793.83 [Kbytes/sec] received
-
-Connection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0    0   0.1      0       9
-Processing:     0    0   0.4      0      10
-Waiting:        0    0   0.2      0      10
-Total:          0    0   0.4      0      11
-
-Percentage of the requests served within a certain time (ms)
-  50%      0
-  66%      0
-  75%      0
-  80%      0
-  90%      0
-  95%      1
-  98%      1
-  99%      2
- 100%     11 (longest request)
-}}}
-
-----
-
-===GET 512 bytes text message from a queue: 10058 requests/sec===
-
-{{{
-[root@xoyo test]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
-This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
-Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright 2006 The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking 127.0.0.1 (be patient)
-Completed 10000 requests
-Completed 20000 requests
-Completed 30000 requests
-Completed 40000 requests
-Completed 50000 requests
-Completed 60000 requests
-Completed 70000 requests
-Completed 80000 requests
-Completed 90000 requests
-Finished 100000 requests
-
-
-Server Software:        
-Server Hostname:        127.0.0.1
-Server Port:            1218
-
-Document Path:          /?name=xoyo&opt=get
-Document Length:        512 bytes
-
-Concurrency Level:      10
-Time taken for tests:   9.941709 seconds
-Complete requests:      100000
-Failed requests:        0
-Write errors:           0
-Total transferred:      57400000 bytes
-HTML transferred:       51200000 bytes
-Requests per second:    10058.63 [#/sec] (mean)
-Time per request:       0.994 [ms] (mean)
-Time per request:       0.099 [ms] (mean, across all concurrent requests)
-Transfer rate:          5638.27 [Kbytes/sec] received
-
-Connection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0    0   0.1      0       9
-Processing:     0    0   0.5      0      10
-Waiting:        0    0   0.3      0      10
-Total:          0    0   0.5      0      10
-
-Percentage of the requests served within a certain time (ms)
-  50%      0
-  66%      0
-  75%      0
-  80%      0
-  90%      1
-  95%      1
-  98%      2
-  99%      2
- 100%     10 (longest request)
-}}}
+===PUT 512 bytes text message into a queue (With Keep-Alive): 14858 requests/sec===
 
 {{{
 [root@xoyo42 ~]# ab -k -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -193,6 +63,10 @@ Percentage of the requests served within a certain time (ms)
  100%     13 (longest request)
 }}}
 
+----
+
+===GET 512 bytes text message from a queue (With Keep-Alive): 14973 requests/sec===
+
 {{{
 [root@xoyo42 ~]# ab -k -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
 This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
@@ -249,4 +123,122 @@ Percentage of the requests served within a certain time (ms)
   98%      1
   99%      1
  100%      6 (longest request)
+}}}
+
+===PUT 512 bytes text message into a queue (Without Keep-Alive): 10787 requests/sec===
+
+{{{
+[root@xoyo42 ~]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"   
+This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright 2006 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 10000 requests
+Completed 20000 requests
+Completed 30000 requests
+Completed 40000 requests
+Completed 50000 requests
+Completed 60000 requests
+Completed 70000 requests
+Completed 80000 requests
+Completed 90000 requests
+Finished 100000 requests
+
+
+Server Software:        
+Server Hostname:        127.0.0.1
+Server Port:            1218
+
+Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Document Length:        14 bytes
+
+Concurrency Level:      10
+Time taken for tests:   9.270115 seconds
+Complete requests:      100000
+Failed requests:        0
+Write errors:           0
+Total transferred:      7600000 bytes
+HTML transferred:       1400000 bytes
+Requests per second:    10787.35 [#/sec] (mean)
+Time per request:       0.927 [ms] (mean)
+Time per request:       0.093 [ms] (mean, across all concurrent requests)
+Transfer rate:          800.53 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.1      0       8
+Processing:     0    0   0.3      0       9
+Waiting:        0    0   0.2      0       9
+Total:          0    0   0.3      0       9
+
+Percentage of the requests served within a certain time (ms)
+  50%      0
+  66%      0
+  75%      0
+  80%      0
+  90%      0
+  95%      1
+  98%      1
+  99%      1
+ 100%      9 (longest request)
+}}}
+
+===GET 512 bytes text message from a queue (Without Keep-Alive): 10481 requests/sec===
+
+{{{
+[root@xoyo42 ~]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
+This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright 2006 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 10000 requests
+Completed 20000 requests
+Completed 30000 requests
+Completed 40000 requests
+Completed 50000 requests
+Completed 60000 requests
+Completed 70000 requests
+Completed 80000 requests
+Completed 90000 requests
+Finished 100000 requests
+
+
+Server Software:        
+Server Hostname:        127.0.0.1
+Server Port:            1218
+
+Document Path:          /?name=xoyo&opt=get
+Document Length:        696 bytes
+
+Concurrency Level:      10
+Time taken for tests:   9.540882 seconds
+Complete requests:      100000
+Failed requests:        0
+Write errors:           0
+Total transferred:      75800835 bytes
+HTML transferred:       69600711 bytes
+Requests per second:    10481.21 [#/sec] (mean)
+Time per request:       0.954 [ms] (mean)
+Time per request:       0.095 [ms] (mean, across all concurrent requests)
+Transfer rate:          7758.61 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.0      0       2
+Processing:     0    0   0.5      0       3
+Waiting:        0    0   0.1      0       2
+Total:          0    0   0.5      0       3
+
+Percentage of the requests served within a certain time (ms)
+  50%      0
+  66%      0
+  75%      0
+  80%      0
+  90%      1
+  95%      1
+  98%      2
+  99%      2
+ 100%      3 (longest request)
 }}}
