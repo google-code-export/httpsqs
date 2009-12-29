@@ -3,7 +3,7 @@
 
 ----
 
-===PUT 512 bytes text message into a queue (With Keep-Alive): 15001 requests/sec===
+===PUT 512 bytes text message into a queue (With Keep-Alive): 15446 requests/sec===
 
 {{{
 [root@xoyo42 ~]# ab -k -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -32,24 +32,24 @@ Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Document Length:        14 bytes
 
 Concurrency Level:      10
-Time taken for tests:   6.666106 seconds
+Time taken for tests:   6.473789 seconds
 Complete requests:      100000
 Failed requests:        0
 Write errors:           0
 Keep-Alive requests:    100000
 Total transferred:      12000000 bytes
 HTML transferred:       1400000 bytes
-Requests per second:    15001.26 [#/sec] (mean)
-Time per request:       0.667 [ms] (mean)
-Time per request:       0.067 [ms] (mean, across all concurrent requests)
-Transfer rate:          1757.85 [Kbytes/sec] received
+Requests per second:    15446.90 [#/sec] (mean)
+Time per request:       0.647 [ms] (mean)
+Time per request:       0.065 [ms] (mean, across all concurrent requests)
+Transfer rate:          1810.07 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.0      0       1
-Processing:     0    0   0.2      0       9
-Waiting:        0    0   0.2      0       9
-Total:          0    0   0.2      0       9
+Connect:        0    0   0.0      0       0
+Processing:     0    0   0.1      0      10
+Waiting:        0    0   0.1      0      10
+Total:          0    0   0.1      0      10
 
 Percentage of the requests served within a certain time (ms)
   50%      0
@@ -58,9 +58,9 @@ Percentage of the requests served within a certain time (ms)
   80%      0
   90%      0
   95%      0
-  98%      1
-  99%      1
- 100%      9 (longest request)
+  98%      0
+  99%      0
+ 100%     10 (longest request)
 }}}
 
 ----
