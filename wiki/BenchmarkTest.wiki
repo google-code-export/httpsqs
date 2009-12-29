@@ -3,10 +3,10 @@
 
 ----
 
-===PUT 512 bytes text message into a queue (With Keep-Alive): 14858 requests/sec===
+===PUT 512 bytes text message into a queue (With Keep-Alive): 15001 requests/sec===
 
 {{{
-[root@xoyo42 ~]# ab -k -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+[root@xoyo42 ~]# ab -k -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Copyright 2006 The Apache Software Foundation, http://www.apache.org/
@@ -28,28 +28,28 @@ Server Software:
 Server Hostname:        127.0.0.1
 Server Port:            1218
 
-Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Document Length:        14 bytes
 
 Concurrency Level:      10
-Time taken for tests:   6.730219 seconds
+Time taken for tests:   6.666106 seconds
 Complete requests:      100000
 Failed requests:        0
 Write errors:           0
 Keep-Alive requests:    100000
 Total transferred:      12000000 bytes
 HTML transferred:       1400000 bytes
-Requests per second:    14858.36 [#/sec] (mean)
-Time per request:       0.673 [ms] (mean)
+Requests per second:    15001.26 [#/sec] (mean)
+Time per request:       0.667 [ms] (mean)
 Time per request:       0.067 [ms] (mean, across all concurrent requests)
-Transfer rate:          1741.10 [Kbytes/sec] received
+Transfer rate:          1757.85 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.0      0       1
-Processing:     0    0   0.2      0      13
-Waiting:        0    0   0.2      0      13
-Total:          0    0   0.2      0      13
+Processing:     0    0   0.2      0       9
+Waiting:        0    0   0.2      0       9
+Total:          0    0   0.2      0       9
 
 Percentage of the requests served within a certain time (ms)
   50%      0
@@ -60,12 +60,12 @@ Percentage of the requests served within a certain time (ms)
   95%      0
   98%      1
   99%      1
- 100%     13 (longest request)
+ 100%      9 (longest request)
 }}}
 
 ----
 
-===GET 512 bytes text message from a queue (With Keep-Alive): 14973 requests/sec===
+===GET 512 bytes text message from a queue (With Keep-Alive): 16817 requests/sec===
 
 {{{
 [root@xoyo42 ~]# ab -k -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
@@ -91,44 +91,44 @@ Server Hostname:        127.0.0.1
 Server Port:            1218
 
 Document Path:          /?name=xoyo&opt=get
-Document Length:        696 bytes
+Document Length:        512 bytes
 
 Concurrency Level:      10
-Time taken for tests:   6.678289 seconds
+Time taken for tests:   5.946172 seconds
 Complete requests:      100000
 Failed requests:        0
 Write errors:           0
 Keep-Alive requests:    100000
-Total transferred:      80300000 bytes
-HTML transferred:       69600000 bytes
-Requests per second:    14973.90 [#/sec] (mean)
-Time per request:       0.668 [ms] (mean)
-Time per request:       0.067 [ms] (mean, across all concurrent requests)
-Transfer rate:          11742.08 [Kbytes/sec] received
+Total transferred:      61900000 bytes
+HTML transferred:       51200000 bytes
+Requests per second:    16817.54 [#/sec] (mean)
+Time per request:       0.595 [ms] (mean)
+Time per request:       0.059 [ms] (mean, across all concurrent requests)
+Transfer rate:          10166.04 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.0      0       0
-Processing:     0    0   0.3      0       6
-Waiting:        0    0   0.3      0       5
-Total:          0    0   0.3      0       6
+Connect:        0    0   0.0      0       1
+Processing:     0    0   0.1      0       9
+Waiting:        0    0   0.1      0       9
+Total:          0    0   0.1      0       9
 
 Percentage of the requests served within a certain time (ms)
   50%      0
   66%      0
   75%      0
   80%      0
-  90%      1
-  95%      1
-  98%      1
-  99%      1
- 100%      6 (longest request)
+  90%      0
+  95%      0
+  98%      0
+  99%      0
+ 100%      9 (longest request)
 }}}
 
-===PUT 512 bytes text message into a queue (Without Keep-Alive): 10787 requests/sec===
+===PUT 512 bytes text message into a queue (Without Keep-Alive): 10515 requests/sec===
 
 {{{
-[root@xoyo42 ~]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"   
+[root@xoyo42 ~]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"   
 This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Copyright 2006 The Apache Software Foundation, http://www.apache.org/
@@ -150,41 +150,41 @@ Server Software:
 Server Hostname:        127.0.0.1
 Server Port:            1218
 
-Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Document Path:          /?name=xoyo&opt=put&data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Document Length:        14 bytes
 
 Concurrency Level:      10
-Time taken for tests:   9.270115 seconds
+Time taken for tests:   9.509794 seconds
 Complete requests:      100000
 Failed requests:        0
 Write errors:           0
 Total transferred:      7600000 bytes
 HTML transferred:       1400000 bytes
-Requests per second:    10787.35 [#/sec] (mean)
-Time per request:       0.927 [ms] (mean)
-Time per request:       0.093 [ms] (mean, across all concurrent requests)
-Transfer rate:          800.53 [Kbytes/sec] received
+Requests per second:    10515.47 [#/sec] (mean)
+Time per request:       0.951 [ms] (mean)
+Time per request:       0.095 [ms] (mean, across all concurrent requests)
+Transfer rate:          780.35 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.1      0       8
-Processing:     0    0   0.3      0       9
-Waiting:        0    0   0.2      0       9
-Total:          0    0   0.3      0       9
+Connect:        0    0   0.0      0       1
+Processing:     0    0   0.5      0       6
+Waiting:        0    0   0.1      0       6
+Total:          0    0   0.5      0       6
 
 Percentage of the requests served within a certain time (ms)
   50%      0
   66%      0
   75%      0
   80%      0
-  90%      0
+  90%      1
   95%      1
-  98%      1
-  99%      1
- 100%      9 (longest request)
+  98%      2
+  99%      2
+ 100%      6 (longest request)
 }}}
 
-===GET 512 bytes text message from a queue (Without Keep-Alive): 10481 requests/sec===
+===GET 512 bytes text message from a queue (Without Keep-Alive): 10823 requests/sec===
 
 {{{
 [root@xoyo42 ~]# ab -c 10 -n 100000 "http://127.0.0.1:1218/?name=xoyo&opt=get"
@@ -210,26 +210,26 @@ Server Hostname:        127.0.0.1
 Server Port:            1218
 
 Document Path:          /?name=xoyo&opt=get
-Document Length:        696 bytes
+Document Length:        512 bytes
 
 Concurrency Level:      10
-Time taken for tests:   9.540882 seconds
+Time taken for tests:   9.239122 seconds
 Complete requests:      100000
 Failed requests:        0
 Write errors:           0
-Total transferred:      75800835 bytes
-HTML transferred:       69600711 bytes
-Requests per second:    10481.21 [#/sec] (mean)
-Time per request:       0.954 [ms] (mean)
-Time per request:       0.095 [ms] (mean, across all concurrent requests)
-Transfer rate:          7758.61 [Kbytes/sec] received
+Total transferred:      57400728 bytes
+HTML transferred:       51200542 bytes
+Requests per second:    10823.54 [#/sec] (mean)
+Time per request:       0.924 [ms] (mean)
+Time per request:       0.092 [ms] (mean, across all concurrent requests)
+Transfer rate:          6067.13 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.0      0       2
-Processing:     0    0   0.5      0       3
-Waiting:        0    0   0.1      0       2
-Total:          0    0   0.5      0       3
+Processing:     0    0   0.4      0       4
+Waiting:        0    0   0.1      0       3
+Total:          0    0   0.4      0       4
 
 Percentage of the requests served within a certain time (ms)
   50%      0
@@ -238,7 +238,7 @@ Percentage of the requests served within a certain time (ms)
   80%      0
   90%      1
   95%      1
-  98%      2
-  99%      2
- 100%      3 (longest request)
+  98%      1
+  99%      1
+ 100%      4 (longest request)
 }}}
