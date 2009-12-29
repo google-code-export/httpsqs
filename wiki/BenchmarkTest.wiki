@@ -125,6 +125,8 @@ Percentage of the requests served within a certain time (ms)
  100%      9 (longest request)
 }}}
 
+----
+
 ===PUT 512 bytes text message into a queue (Without Keep-Alive): 10515 requests/sec===
 
 {{{
@@ -183,6 +185,8 @@ Percentage of the requests served within a certain time (ms)
   99%      2
  100%      6 (longest request)
 }}}
+
+----
 
 ===GET 512 bytes text message from a queue (Without Keep-Alive): 10823 requests/sec===
 
