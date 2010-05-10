@@ -30,6 +30,10 @@ This is free software, and you are welcome to modify and redistribute it under t
 #include <signal.h>
 #include <stdbool.h>
 
+/* Enable threading please */
+#include <pthread.h>
+
+/* Include the tokyo tyrant library */
 #include <tcbdb.h>
 
 #include <err.h>
@@ -42,12 +46,37 @@ This is free software, and you are welcome to modify and redistribute it under t
 TCBDB *httpsqs_db_tcbdb; /* Data store */
 struct event resync_event;
 struct timeval resync_timeout = {3,0};
+int tcbdb_memory_cache_size = 104857600;
+char* thread_stuff;
+char* httpsqs_settings_datapath = NULL;
+char* default_db = "default";
+pthread_t db_creation_thread;
+pthread_mutex_t db_create_lock ;
+
+typedef struct stats {
+int write_counts;
+int read_counts;
+} stats;
+
+typedef struct tokyo_services {
+TCBDB *db_tcbdb;
+char queue_name[256];
+int number;
+pthread_mutex_t read_lock;
+} tokyo_services;
+
+
+struct stats mystats = {0,0};
+
+struct tokyo_services db_service[10];
+
+int service_num = -1;
 
 /* Create multi-directory structure */
 void create_multilayer_dir( char *muldir ) 
 {
-    int    i,len;
-    char    str[512];
+	int		i,len;
+	char	str[512];
     
     strncpy( str, muldir, 512 );
     len=strlen(str);
@@ -87,8 +116,7 @@ char *urldecode(char *input_str)
                 if (*data == '+') { 
                         *dest = ' '; 
                 } 
-                else if (*data == '%' && len >= 2 && isxdigit((int) *(data + 1)) 
-  && isxdigit((int) *(data + 2))) 
+                else if (*data == '%' && len >= 2 && isxdigit((int) *(data + 1)) && isxdigit((int) *(data + 2))) 
                 { 
 
                         c = ((unsigned char *)(data+1))[0]; 
@@ -141,6 +169,116 @@ static int httpsqs_sync_db()
 	return tcbdbsync(httpsqs_db_tcbdb);
 }
 
+static void show_dbs() {
+int i;
+fprintf(stdout, "Service_num: %d\n", service_num);
+for(i=0;i<=service_num;i++){
+fprintf(stdout, "Got service number %d: %s (%d)\n",i,(char *)db_service[i].queue_name,strlen(db_service[i].queue_name));
+}	
+}
+
+static void *start_db(void *arg){
+	pthread_mutex_lock(&db_create_lock); fprintf(stdout, "Enter db create thread DB_CREATE MUTEX SET!\n");
+	
+	/* Database path */
+	int httpsqs_settings_dataname_len = 1024;
+	char *httpsqs_settings_dataname = (char *)malloc(httpsqs_settings_dataname_len);
+	memset(httpsqs_settings_dataname, '\0', httpsqs_settings_dataname_len);
+	
+	int make_service; /* Holds key temporarily */
+	
+	/* Set database number before setting global datastore count */
+	make_service = service_num+1;
+	
+	sprintf(httpsqs_settings_dataname, "%s/httpsqs_%d.db", httpsqs_settings_datapath, make_service); /* Database name is httpsqs_#.db */
+	fprintf(stdout, "creating: %s\n", httpsqs_settings_dataname);
+	
+	fprintf(stdout, "Making new datastore number %d\n", make_service);
+	
+	/* Creating new read_lock mutex */
+	pthread_mutex_init(&db_service[make_service].read_lock, NULL);
+	/* Locking database while creating it */
+	pthread_mutex_lock(&db_service[make_service].read_lock);
+	
+	/* Init Tokyo Cabinet into proper pointer? */
+	db_service[make_service].db_tcbdb = tcbdbnew();
+	
+	/* Tuning parameters */
+	/* 	1024 members in each leaf page */
+	/* 	2024 members in each non-leaf page */
+	/* 	50 mil elements in the bucket array (1 to 4 times number of pages to be stored) */
+	/* 	8 record alignment by power of two, 2^8 = 256 */
+	/* 	10 elements in the free block pool, by power of two, 2^10 = 1024 */
+	/* 	opts, BDBTLARGE allows for 2G+ files by using 64bit bucket array */
+	tcbdbtune(db_service[make_service].db_tcbdb, 1024, 2048, 50000000, 8, 10, BDBTLARGE);
+	tcbdbsetxmsiz(db_service[make_service].db_tcbdb, tcbdb_memory_cache_size); /* Set memory cache size */
+	
+	/* Try opening the table */
+	fprintf(stdout, "Opening DB... %s\n", httpsqs_settings_dataname);
+	
+	if(!tcbdbopen(db_service[make_service].db_tcbdb, httpsqs_settings_dataname, BDBOWRITER|BDBOCREAT)){
+		fprintf(stderr, "Unable to open the database %s.\n\n", httpsqs_settings_dataname);		
+		exit(1);
+	}
+	fprintf(stdout, "Done...\n\n");
+	fprintf(stdout, "finished setting db service number %d\n\n", make_service);
+	
+	//sleep(10);
+	
+	/* Incrementing number of datastores to accomodate newly created one */
+	service_num++;
+	
+	/* Unlock read mutex on current datastore */
+	pthread_mutex_unlock(&db_service[make_service].read_lock);
+	
+	/* Free vars from memory */
+	free(httpsqs_settings_dataname);
+	
+	/* Unlock table creation mutex */
+	pthread_mutex_unlock(&db_create_lock);
+	return NULL;
+}
+
+static TCBDB *get_db(const char* httpsqs_input_name) {
+	int i=0;
+	
+	/* Iterate over available services searching for ours */
+	fprintf(stdout, "Enter DB get thread trying to get %s\n", httpsqs_input_name);
+	for(i=0;i<service_num;i++) {
+		if(strcmp(db_service[i].queue_name, httpsqs_input_name) == 0) {
+		fprintf(stdout, "got %s\n", db_service[i].queue_name);
+			fprintf(stdout, "Getting %s queue number %d\n", db_service[i].queue_name, i);
+			pthread_mutex_lock(&db_service[i].read_lock);
+			pthread_mutex_unlock(&db_service[i].read_lock);
+			return db_service[i].db_tcbdb;
+		}
+	}
+	
+	/* Trying to find an empty service to use */
+	for(i=0;i<=service_num;i++) {
+		fprintf(stdout, "Try empty service %d\n",i);
+		if (strlen(db_service[i].queue_name) == 0) {
+			/* Trying to acquire a read_lock on it, release it immediately. */
+			pthread_mutex_lock(&db_service[i].read_lock);
+			pthread_mutex_unlock(&db_service[i].read_lock);
+			
+			/* Name it like we want */
+			strcpy(db_service[i].queue_name, httpsqs_input_name);
+			
+			/* Acquire a db create mutex and release it immediately */
+			fprintf(stdout, "trying DB_CREATE MUTEX!\n");
+			pthread_mutex_lock(&db_create_lock);
+			fprintf(stdout, "GOT DB_CREATE MUTEX, starting creation thread!\n");
+			pthread_create(&db_creation_thread, NULL, start_db, NULL);
+		
+			pthread_mutex_unlock(&db_create_lock);
+			return db_service[i].db_tcbdb;
+		}
+	}
+	
+	return NULL;
+}
+
 /* Get writer cursor position */
 static int httpsqs_read_putpos(const char* httpsqs_input_name)
 {
@@ -150,6 +288,8 @@ static int httpsqs_read_putpos(const char* httpsqs_input_name)
 	memset(queue_name, '\0', 300);
 	
 	sprintf(queue_name, "%s:%s", httpsqs_input_name, "putpos");
+	
+	
 	
 	queue_value_tmp = tcbdbget2(httpsqs_db_tcbdb, queue_name);
 	if(queue_value_tmp){
@@ -200,23 +340,25 @@ static int httpsqs_read_maxqueue(const char* httpsqs_input_name)
 	return queue_value;
 }
 
-/* 设置最大的队列数量，返回值为设置的队列数量。如果返回值为0，则表示设置取消（取消原因为：设置的最大的队列数量小于”当前队列写入位置点“和”当前队列读取位置点“，或者”当前队列写入位置点“小于”当前队列的读取位置点） */
+/* 
+Set the maximum queue length. 
+*/
 static int httpsqs_maxqueue(const char* httpsqs_input_name, int httpsqs_input_num)
 {
 	int queue_put_value = 0;
 	int queue_get_value = 0;
 	int queue_maxnum_int = 0;
 	
-	/* 读取当前队列写入位置点 */
+	/* Read current write position */
 	queue_put_value = httpsqs_read_putpos(httpsqs_input_name);
 	
-	/* 读取当前队列读取位置点 */
+	/* Read current read position */
 	queue_get_value = httpsqs_read_getpos(httpsqs_input_name);
 
-	/* 设置最大的队列数量，最小值为10条，最大值为10亿条 */
+	/* Set maximum number of queued messages */
 	queue_maxnum_int = httpsqs_input_num;
 	
-	/* 设置的最大的队列数量必须大于等于”当前队列写入位置点“和”当前队列读取位置点“，并且”当前队列写入位置点“必须大于等于”当前队列读取位置点“ */
+	/* Set the max queue size if the queue is unwrapped and the maximum queue size is greater that the current write position, else fail. */
 	if (queue_maxnum_int >= queue_put_value && queue_maxnum_int >= queue_get_value && queue_put_value >= queue_get_value) {
 		char queue_name[300]; /* Total key name, first 256 is user queue name */
 		char *queue_maxnum = (char *)malloc(16);
@@ -233,7 +375,7 @@ static int httpsqs_maxqueue(const char* httpsqs_input_name, int httpsqs_input_nu
 	return 0;
 }
 
-/* 重置队列，0表示重置成功 */
+/* Reset the queue, return 0 on success. */
 static int httpsqs_reset(const char* httpsqs_input_name)
 {
 	char queue_name[300]; /* Total key name, first 256 is user queue name */
@@ -253,7 +395,7 @@ static int httpsqs_reset(const char* httpsqs_input_name)
 	return 0;
 }
 
-/* 查看单条队列内容 */
+/* View content of a single queue message */
 char *httpsqs_view(const char* httpsqs_input_name, int pos)
 {
 	char *queue_value;
@@ -267,7 +409,7 @@ char *httpsqs_view(const char* httpsqs_input_name, int pos)
 	return queue_value;
 }
 
-/* 获取本次“入队列”操作的队列写入点 */
+/* Write to the current put position */
 static int httpsqs_now_putpos(const char* httpsqs_input_name)
 {
 	int maxqueue_num = 0;
@@ -276,24 +418,24 @@ static int httpsqs_now_putpos(const char* httpsqs_input_name)
 	char queue_name[300]; /* Total key name, first 256 is user queue name */
 	char *queue_input = (char *)malloc(32);
 	
-	/* 获取最大队列数量 */
+	/* Read the maximum queue length */
 	maxqueue_num = httpsqs_read_maxqueue(httpsqs_input_name);
 	
-	/* 读取当前队列写入位置点 */
+	/* Read the current put position */
 	queue_put_value = httpsqs_read_putpos(httpsqs_input_name);
 	
-	/* 读取当前队列读取位置点 */
+	/* Read the current read position */
 	queue_get_value = httpsqs_read_getpos(httpsqs_input_name);	
 	
 	memset(queue_name, '\0', 300);
 	sprintf(queue_name, "%s:%s", httpsqs_input_name, "putpos");	
 	
-	/* 队列写入位置点加1 */
+	/* Increment the put position */
 	queue_put_value = queue_put_value + 1;
 	if (queue_put_value == queue_get_value) { /* Write ID + 1 equals Read ID, this means queue is FULL! Refuse to write, return 0 */
 		queue_put_value = 0;
 	}
-	else if (queue_put_value > maxqueue_num) { /* If queue is written at a position bigger than maxqueue_num, go to position 1, introtuces major bug! */
+	else if (queue_put_value > maxqueue_num) { /* If queue is written at a position bigger than maxqueue_num, go to position 1, introduces major bug! */
 		if(tcbdbput2(httpsqs_db_tcbdb, queue_name, "1")) {
 			queue_put_value = 1;
 		}
@@ -307,7 +449,7 @@ static int httpsqs_now_putpos(const char* httpsqs_input_name)
 	return queue_put_value;
 }
 
-/* Get the queue read point, if the return value is 0 then the queue is emty */
+/* Get the queue read point, if the return value is 0 then the queue is empty */
 static int httpsqs_now_getpos(const char* httpsqs_input_name)
 {
 	int maxqueue_num = 0;
@@ -315,23 +457,22 @@ static int httpsqs_now_getpos(const char* httpsqs_input_name)
 	int queue_get_value = 0;
 	char queue_name[300]; /* Total key name, first 256 is user queue name */
 
-	/* 获取最大队列数量 */
+	/* Read the maximum queue length */
 	maxqueue_num = httpsqs_read_maxqueue(httpsqs_input_name);
 	
-	/* 读取当前队列写入位置点 */
+	/* Read the current put position */
 	queue_put_value = httpsqs_read_putpos(httpsqs_input_name);
 	
-	/* 读取当前队列读取位置点 */
+	/* Read the current read position */
 	queue_get_value = httpsqs_read_getpos(httpsqs_input_name);
 	
-	/* 如果queue_get_value的值不存在，重置队列读取位置点为1 */
 	memset(queue_name, '\0', 300);
 	sprintf(queue_name, "%s:%s", httpsqs_input_name, "getpos");
-	/* 如果queue_get_value的值不存在，重置为1 */
+	/* If the get value doesn't exist set it to 1 */
 	if (queue_get_value == 0 && queue_put_value > 0) {
 		queue_get_value = 1;
 		tcbdbput2(httpsqs_db_tcbdb, queue_name, "1");
-	/* 如果队列的读取值（出队列）小于队列的写入值（入队列） */
+	/* If the queue in unwrapped */
 	} else if (queue_get_value < queue_put_value) {
 		queue_get_value = queue_get_value + 1;
 		char *queue_input = (char *)malloc(32);		
@@ -339,7 +480,7 @@ static int httpsqs_now_getpos(const char* httpsqs_input_name)
 		sprintf(queue_input, "%d", queue_get_value);
 		tcbdbput2(httpsqs_db_tcbdb, queue_name, queue_input);
 		free(queue_input);
-	/* 如果队列的读取值（出队列）大于队列的写入值（入队列），并且队列的读取值（出队列）小于最大队列数量 */
+	/* If the queue is wrapped */
 	} else if (queue_get_value > queue_put_value && queue_get_value < maxqueue_num) {
 		queue_get_value = queue_get_value + 1;
 		char *queue_input = (char *)malloc(32);		
@@ -347,11 +488,11 @@ static int httpsqs_now_getpos(const char* httpsqs_input_name)
 		sprintf(queue_input, "%d", queue_get_value);
 		tcbdbput2(httpsqs_db_tcbdb, queue_name, queue_input);
 		free(queue_input);
-	/* 如果队列的读取值（出队列）大于队列的写入值（入队列），并且队列的读取值（出队列）等于最大队列数量 */
+	/* If we are reading the end of the queue, reset the read position */
 	} else if (queue_get_value > queue_put_value && queue_get_value == maxqueue_num) {
 		queue_get_value = 1;
 		tcbdbput2(httpsqs_db_tcbdb, queue_name, "1");
-	/* 队列的读取值（出队列）等于队列的写入值（入队列），即队列中的数据已全部读出 */
+	/* We have an unknown situation */
 	} else {
 		queue_get_value = 0;
 	}
@@ -359,7 +500,7 @@ static int httpsqs_now_getpos(const char* httpsqs_input_name)
 	return queue_get_value;
 }
 
-/* 处理模块 */
+/* HTTP Request processor */
 void httpsqs_handler(struct evhttp_request *req, void *arg)
 {
         struct evbuffer *buf;
@@ -378,6 +519,9 @@ void httpsqs_handler(struct evhttp_request *req, void *arg)
 		const char *httpsqs_input_data = evhttp_find_header (&httpsqs_http_query, "data"); /* Data */
 		const char *httpsqs_input_pos_tmp = evhttp_find_header (&httpsqs_http_query, "pos"); /* Location (get position) */
 		const char *httpsqs_input_num_tmp = evhttp_find_header (&httpsqs_http_query, "num"); /* Length (set maxlen) */
+		
+		
+		
 		int httpsqs_input_pos = 0;
 		int httpsqs_input_num = 0;
 		if (httpsqs_input_pos_tmp != NULL) {
@@ -545,11 +689,12 @@ void httpsqs_handler(struct evhttp_request *req, void *arg)
 					evbuffer_add_printf(buf, "%s", "HTTPSQS_TCBD_SYNC_ERROR");
 				}
 			} else if (strcmp(httpsqs_input_opt, "stop") == 0) {
-				if(httpsqs_sync_db()) {
-					evbuffer_add_printf(buf, "%s", "HTTPSQS_TCBD_SYNC_OK");
-				} else {
-					evbuffer_add_printf(buf, "%s", "HTTPSQS_TCBD_SYNC_ERROR");
-				}
+				tcbdbsync(httpsqs_db_tcbdb);
+				event_loopexit(NULL);
+			} else if (strcmp(httpsqs_input_opt, "create") == 0) {
+				get_db((char *)httpsqs_input_name);
+			} else if (strcmp(httpsqs_input_opt, "list") == 0) {
+				show_dbs();
 			} else {
 				/* Unrecognized request */
 				evbuffer_add_printf(buf, "%s", "HTTPSQS_ERROR");				
@@ -579,8 +724,28 @@ static void kill_signal(const int sig) {
 }
 
 static void run_resync_db(int fd, short events, void *arg) {
-	fprintf(stdout, "Flushing db data to disk.\n");
-	httpsqs_sync_db();
+	show_dbs();
+					event_add(&resync_event, &resync_timeout);
+	//evhttp_set_timeout(httpd, httpsqs_settings_timeout);
+	//fprintf(stdout, "Flushing db data to disk.\n");
+	//fprintf(stdout, "Thread stuff %s.\n", thread_stuff);
+	//httpsqs_sync_db();
+}
+
+void *create_db(void *arg)
+{
+   thread_stuff = "Threaded call.\n";
+   fprintf(stdout, "Threaded function.\n");
+   sleep(1);
+   fprintf(stdout, "Threaded function.\n");
+   sleep(1);
+   fprintf(stdout, "Threaded function.\n");
+   sleep(1);
+   fprintf(stdout, "Threaded function.\n");
+   sleep(1);
+   fprintf(stdout, "Threaded function.\n");
+   sleep(1);
+   return NULL;
 }
 
 int main(int argc, char **argv)
@@ -589,10 +754,11 @@ int main(int argc, char **argv)
 	/* Default parameter settings */
 	char *httpsqs_settings_listen = "0.0.0.0";
 	int httpsqs_settings_port = 1218;
-	char *httpsqs_settings_datapath = NULL;
+//	char *httpsqs_settings_datapath = NULL;
 	bool httpsqs_settings_daemon = false;
 	int httpsqs_settings_timeout = 1; /* Set time-out in seconds */
-	int https_settings_memory_cache_size = 104857600; /* Default Cabinet memory cache size is 100M */
+	int i=0;
+	//int https_settings_memory_cache_size = 104857600; /* Default Cabinet memory cache size is 100M */
 	
 	static struct option long_options[] = {
                {"listen", 1, NULL, 'l'},
@@ -635,12 +801,13 @@ int main(int argc, char **argv)
 			}
             break;
 		case 'm':
-			https_settings_memory_cache_size = atoi(optarg)*1024*1024;
+			tcbdb_memory_cache_size = atoi(optarg)*1024*1024;
+			fprintf(stdout, "Memory cache size: %d M.\n", tcbdb_memory_cache_size/(1024*1024));
 			break;
         case 't':
             httpsqs_settings_timeout = atoi(optarg);
 			fprintf(stdout, "HTTP Session Timeout: %d s.\n", httpsqs_settings_timeout);
-            break;			
+            break;
 		case 'f':
 			resync_timeout.tv_sec = atoi(optarg);
 			fprintf(stdout, "Resync timeout is %ds, will pause on write activity.\n", atoi(optarg));
@@ -666,37 +833,31 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	
-	/* Database path */
-	int httpsqs_settings_dataname_len = 1024;
-	char *httpsqs_settings_dataname = (char *)malloc(httpsqs_settings_dataname_len);
-	memset(httpsqs_settings_dataname, '\0', httpsqs_settings_dataname_len);
-	sprintf(httpsqs_settings_dataname, "%s/httpsqs.db", httpsqs_settings_datapath); /* Database name is httpsqs.db */
-
-	fprintf(stdout, "Opening Tokyo Cabinet Table.\n");
-	/* New B+ Tree Cabinet */
-	httpsqs_db_tcbdb = tcbdbnew();
-
-	/* Tuning parameters */
-	/* 	1024 members in each leaf page */
-	/* 	2024 members in each non-leaf page */
-	/* 	50 mil elements in the bucket array (1 to 4 times number of pages to be stored) */
-	/* 	8 record alignment by power of two, 2^8 = 256 */
-	/* 	10 elements in the free block pool, by power of two, 2^10 = 1024 */
-	/* 	opts, BDBTLARGE allows for 2G+ files by using 64bit bucket array */
-	tcbdbtune(httpsqs_db_tcbdb, 1024, 2048, 50000000, 8, 10, BDBTLARGE);
-	fprintf(stdout, "Memory cache size: %d M.\n", https_settings_memory_cache_size/(1024*1024));
-	tcbdbsetxmsiz(httpsqs_db_tcbdb, https_settings_memory_cache_size); /* Set memory cache size */
-				
-	/* Try opening the table */
-	if(!tcbdbopen(httpsqs_db_tcbdb, httpsqs_settings_dataname, BDBOWRITER|BDBOCREAT)){
-		show_help();
-		fprintf(stderr, "Attention: Unable to open the database.\n\n");		
-		exit(1);
-	}
-	fprintf(stdout, "Done...\n\n");
 	
-	/* Free vars from memory */
-	free(httpsqs_settings_dataname);
+//	fprintf(stdout, "Opening Tokyo Cabinet Table.\n");
+	/* New B+ Tree Cabinet */
+	//httpsqs_db_tcbdb = tcbdbnew();
+	//httpsqs_db_tcbdb = start_db(default_db);
+	//get_db(default_db);
+
+				
+				
+				
+				
+				
+				/* Threaded stuff */
+				pthread_mutex_lock(&db_create_lock);
+				pthread_create(&db_creation_thread, NULL, start_db, NULL);
+				pthread_mutex_unlock(&db_create_lock);
+				pthread_join(db_creation_thread, NULL);
+				fprintf(stdout, "Trying to get queue: %s\n", default_db);
+				httpsqs_db_tcbdb = get_db(default_db);
+				
+				
+				
+				
+				
+				
 	
 	/* Run as daemon if you have the -d parameter */
 	if (httpsqs_settings_daemon == true){
@@ -724,7 +885,7 @@ int main(int argc, char **argv)
 	signal (SIGTERM, kill_signal);
 	signal (SIGHUP, kill_signal);
 	
-	fprintf(stdout, "Starting HTTP Service.\n\n");
+	fprintf(stdout, "=============   Starting HTTP Service.   =============\n\n");
 	/* Setup request processing */
 	struct evhttp *httpd;
 	struct event_base *ev_base = event_init();
@@ -738,16 +899,24 @@ int main(int argc, char **argv)
 	}
 	
 
-    /* Set a callback for requests to "/specific". */
-    /* evhttp_set_cb(httpd, "/select", select_handler, NULL); */
+	/* Set a callback for requests to "/specific". */
+	/* evhttp_set_cb(httpd, "/select", select_handler, NULL); */
 
-    /* Set a callback for all other requests. */
-    evhttp_set_gencb(httpd, httpsqs_handler, NULL);
+	/* Set a callback for all other requests. */
+	evhttp_set_gencb(httpd, httpsqs_handler, NULL);
 
-    event_dispatch();
+	event_dispatch();
 
-    /* Not reached in this code as it is now. */
-    evhttp_free(httpd);
+	/* Not reached in this code as it is now. */
+	evhttp_free(httpd);
+	
+	for(i=0;i<service_num;i++) {
+			fprintf(stdout, "Closing queue number %d\n", i);
+			tcbdbclose(db_service[i].db_tcbdb);
+	}
+	
+	
+	//tcbdbclose(httpsqs_db_tcbdb);
 
-    return 0;
+	return 0;
 }
