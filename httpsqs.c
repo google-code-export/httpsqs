@@ -70,6 +70,7 @@ struct stats mystats = {0,0};
 
 struct tokyo_services db_service[10];
 
+int db_pool_size = 1;
 int service_num = -1;
 
 /* Create multi-directory structure */
@@ -151,6 +152,7 @@ static void show_help(void)
 		   "--listen -l <ip_addr>  interface to listen on, default is 0.0.0.0\n"
 		   "--port -p <num>      TCP port number to listen on (default: 1218)\n"
 		   "--datadir -x <path>     database directory (example: /opt/httpsqs/data)\n"
+		   "--flush-interval -f <second>     Timeout for flushing data to disk when idle.\n"
 		   "--memory -m <size>     database memory cache size in MB (default: 100)\n"
 		   "--timeout -t <second>   timeout for an http request (default: 1)\n"		   
 		   "--daemon -d            run as a daemon\n"
@@ -758,6 +760,7 @@ int main(int argc, char **argv)
 	bool httpsqs_settings_daemon = false;
 	int httpsqs_settings_timeout = 1; /* Set time-out in seconds */
 	int i=0;
+	
 	//int https_settings_memory_cache_size = 104857600; /* Default Cabinet memory cache size is 100M */
 	
 	static struct option long_options[] = {
