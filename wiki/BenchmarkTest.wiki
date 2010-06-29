@@ -1,7 +1,7 @@
 #labels Featured,Phase-Support
 ===Using Apache AB for HTTPSQS Benchmark Test:===
 
- CPU：Intel(R) Xeon(R) CPU E5540 @ 2.53GHz
+CPU：Intel(R) Xeon(R) CPU E5540 @ 2.53GHz
 
 ----
 
